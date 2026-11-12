@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.dataplatform.0ics.ai/dp-it-giurisprudenza/plan/1.json",
+  "title": "dp-it-giurisprudenza plan file v1 (<stem>.plan.json): written by convert, completed by anonymize, read by ingest",
+  "type": "object",
+  "required": ["version", "kind", "itemId", "counts", "skipped", "pronunce", "massime", "norme", "citations", "cassazione", "cgt", "cgt_skipped"],
+  "properties": {
+    "version": { "const": 1 },
+    "kind": { "enum": ["cc", "cassazione", "cgt"] },
+    "itemId": { "type": "string", "minLength": 1 },
+    "counts": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } },
+    "skipped": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0 } },
+    "pronunce": { "type": "array", "items": { "$ref": "#/$defs/pronuncia" } },
+    "massime": { "type": "array", "items": { "$ref": "#/$defs/massima" } },
+    "norme": { "type": "array", "items": { "$ref": "#/$defs/norma" } },
+    "citations": { "type": "array", "items": { "$ref": "#/$defs/citation" } },
+    "cassazione": { "type": "array", "items": { "$ref": "#/$defs/sentenza" } },
+    "cgt": { "type": "array", "items": { "$ref": "#/$defs/cgt" } },
+    "cgt_skipped": { "type": "array", "items": { "$ref": "#/$defs/cgtSkipped" } },
+    "quarantine": {
+      "description": "added by the anonymize class: documents it refused to pass on (never written by ingest)",
+      "type": "array",
+      "items": { "type": "object", "required": ["id", "reason"], "properties": { "id": { "type": "string" }, "reason": { "type": "string" } } }
+    }
+  },
+  "$defs": {
+    "nullableString": { "type": ["string", "null"] },
+    "pronuncia": {
+      "type": "object",
+      "required": ["ecli", "anno", "numero", "tipologia", "data_deposito", "dispositivo", "text_raw"],
+      "properties": {
+        "ecli": { "type": "string", "pattern": "^ECLI:IT:COST:[0-9]{4}:[0-9]+$" },
+        "anno": { "type": "integer" },
+        "numero": { "type": "integer" },
+        "tipologia": { "enum": ["S", "O"] },
+        "presidente": { "type": "string" },
+        "relatore": { "type": "string" },
+        "redattore": { "$ref": "#/$defs/nullableString" },
+        "data_decisione": { "$ref": "#/$defs/nullableString" },
+        "data_deposito": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+        "collegio": { "type": "string" },
+        "epigrafe": { "type": "string" },
+        "fatto": { "$ref": "#/$defs/nullableString" },
+        "diritto": { "$ref": "#/$defs/nullableString" },
+        "testo": { "$ref": "#/$defs/nullableString" },
+        "dispositivo": { "type": "string" },
+        "text_raw": { "type": "string" }
+      }
+    },
+    "massima": {
+      "type": "object",
+      "required": ["ecli", "numero", "titolo", "text_raw"],
+      "properties": {
+        "ecli": { "type": "string", "pattern": "^ECLI:IT:COST:[0-9]{4}:[0-9]+$" },
+        "numero": { "type": "integer" },
+        "titolo": { "type": "string" },
+        "text_raw": { "type": "string", "minLength": 1 }
+      }
+    },
+    "norma": {
+      "type": "object",
+      "required": ["registro_tipo", "registro_anno", "registro_numero", "ord", "norma_urn"],
+      "properties": {
+        "registro_tipo": { "enum": ["ordinanze", "ricorsi", "conflitti_enti", "conflitti_poteri"] },
+        "registro_anno": { "type": "integer" },
+        "registro_numero": { "type": "integer" },
+        "ord": { "type": "integer", "minimum": 0 },
+        "norma_descrizione": { "$ref": "#/$defs/nullableString" },
+        "norma_numero": { "$ref": "#/$defs/nullableString" },
+        "norma_data": { "$ref": "#/$defs/nullableString" },
+        "norma_articolo": { "$ref": "#/$defs/nullableString" },
+        "norma_comma": { "$ref": "#/$defs/nullableString" },
+        "norma_specificazione_articolo": { "$ref": "#/$defs/nullableString" },
+        "norma_specificazione_comma": { "$ref": "#/$defs/nullableString" },
+        "norma_nesso": { "$ref": "#/$defs/nullableString" },
+        "norma_urn": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+    "citation": {
+      "type": "object",
+      "required": ["ecli", "registro_tipo", "registro_anno", "registro_numero"],
+      "properties": {
+        "ecli": { "type": "string" },
+        "registro_tipo": { "enum": ["ordinanze", "ricorsi", "conflitti_enti", "conflitti_poteri"] },
+        "registro_anno": { "type": "integer" },
+        "registro_numero": { "type": "integer" }
+      }
+    },
+    "sentenza": {
+      "type": "object",
+      "required": ["source_id", "kind", "anno", "text_raw_original", "source_url"],
+      "properties": {
+        "source_id": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["snciv", "snpen"] },
+        "anno": { "type": "integer" },
+        "num_dec": { "$ref": "#/$defs/nullableString" },
+        "sezione": { "$ref": "#/$defs/nullableString" },
+        "tipo_prov": { "$ref": "#/$defs/nullableString" },
+        "data_decisione": { "$ref": "#/$defs/nullableString" },
+        "data_deposito": { "$ref": "#/$defs/nullableString" },
+        "materia": { "$ref": "#/$defs/nullableString" },
+        "presidente": { "$ref": "#/$defs/nullableString" },
+        "relatore": { "$ref": "#/$defs/nullableString" },
+        "ecli": { "$ref": "#/$defs/nullableString" },
+        "text_raw_original": { "type": "string", "minLength": 1 },
+        "ocr_dis": { "$ref": "#/$defs/nullableString" },
+        "source_url": { "type": "string" },
+        "text_anon": { "$ref": "#/$defs/nullableString" },
+        "ocr_dis_anon": { "$ref": "#/$defs/nullableString" },
+        "redaction_report": { "type": ["object", "null"] }
+      }
+    },
+    "cgt": {
+      "type": "object",
+      "required": ["guid", "tipo", "data", "grado", "luogo", "anno", "estremi", "text_raw_original", "source_url"],
+      "properties": {
+        "guid": { "type": "string", "minLength": 1 },
+        "tipo": { "type": "string" },
+        "data": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+        "grado": { "enum": [1, 2] },
+        "luogo": { "type": "string" },
+        "sezione": { "$ref": "#/$defs/nullableString" },
+        "numero": { "$ref": "#/$defs/nullableString" },
+        "anno": { "type": "integer" },
+        "estremi": { "type": "string" },
+        "text_raw_original": { "type": "string", "minLength": 1 },
+        "source_url": { "type": "string" },
+        "text_anon": { "$ref": "#/$defs/nullableString" },
+        "redaction_report": { "type": ["object", "null"] }
+      }
+    },
+    "cgtSkipped": {
+      "type": "object",
+      "required": ["guid", "estremi", "reason"],
+      "properties": { "guid": { "type": "string" }, "estremi": { "type": "string" }, "reason": { "type": "string" } }
+    }
+  }
+}

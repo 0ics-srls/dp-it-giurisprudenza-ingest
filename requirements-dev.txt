@@ -4,3 +4,5 @@ pytest>=8.0
 mypy>=1.11
 ruff
 testcontainers[postgres]>=4
+jsonschema>=4.20
+types-jsonschema
