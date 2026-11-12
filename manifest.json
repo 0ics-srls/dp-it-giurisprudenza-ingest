@@ -1,0 +1,48 @@
+{
+  "specVersion": "1.1",
+  "type": "stdin",
+  "name": "dp-it-giurisprudenza-ingest",
+  "version": "0.1.0",
+  "description": "Loads the case-law plan files (decisions, massime, passages, registries) into the dataset schema, one transaction per item. Upserts; keeps embeddings of unchanged passages.",
+  "author": "open-lex-it",
+  "authentication": false,
+  "actions": {
+    "execute": {
+      "description": "For each item read <dirIn>/<stem>.plan.json and write it to the dataset in one transaction. Quarantined documents are not written. An item that fails rolls back alone.",
+      "input": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "the items to load, as reported by the detect step",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": { "type": "string", "minLength": 1 },
+                "meta": { "type": "object", "properties": { "kind": { "enum": ["cc", "cassazione", "cgt"] }, "itemId": { "type": "string" } }, "required": ["kind", "itemId"] }
+              },
+              "required": ["key", "meta"]
+            }
+          },
+          "dirIn": { "type": "string", "description": "directory with the plan files" },
+          "connString": { "type": "string", "x-secret": true, "description": "dataset connection string" },
+          "schema": { "type": "string", "pattern": "^ds_[a-z0-9_]+$", "description": "dataset schema" }
+        },
+        "required": ["items", "dirIn", "connString", "schema"]
+      },
+      "output": {
+        "type": "object",
+        "description": "{ loaded: [key], metrics: {written.<schema.table>, quarantined, warnings.*} }"
+      }
+    },
+    "terminate": {
+      "description": "Stop and clean up.",
+      "input": { "type": "object", "properties": {} }
+    }
+  },
+  "execution": {
+    "timeout": 3600,
+    "memoryLimit": "512Mi",
+    "cpuLimit": "1.0"
+  }
+}
